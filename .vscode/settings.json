@@ -1,4 +1,7 @@
 {
     "python-envs.defaultEnvManager": "ms-python.python:venv",
-    "python-envs.defaultPackageManager": "ms-python.python:pip"
+    "python-envs.defaultPackageManager": "ms-python.python:pip",
+    "notebook.output.textLineLimit": 75,
+    "notebook.output.scrolling": true,
+    "notebook.output.wordWrap": true
 }
