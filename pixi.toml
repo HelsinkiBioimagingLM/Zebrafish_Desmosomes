@@ -13,6 +13,8 @@ pyqt = ">=5.15,<6"
 jupyterlab = ">=4.6.3,<5"
 scikit-learn = ">=1.9.0,<2"
 bioio = ">=3.5.0,<4"
+matplotlib = ">=3.11.1,<4"
+skan = ">=0.13.1,<0.14"
 
 [pypi-dependencies]
 bioio-czi = ">=2.9.0, <3"
