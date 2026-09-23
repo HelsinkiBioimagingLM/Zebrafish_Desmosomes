@@ -268,8 +268,8 @@ def measure_polyline(points, is_closed=False, sigma=4.0, step=1.0,
     }
 
 def filter_segments(label_img,segments):
-    region_ids = [region_id for region_id, _, _ in segments]
-    indicies = np.arange(np.max(label_img))
+    region_ids = np.unique([region_id for region_id, _, _ in segments])
+    indicies = np.arange(np.max(label_img)+1)
     keep_mask = np.isin(indicies,region_ids)
     keep_bool = keep_mask[label_img.reshape(-1)].reshape(label_img.shape)
     return label_img*keep_bool
@@ -294,7 +294,7 @@ def extract_segments(mask, min_pixels=5,path=None,name=None):
             continue
         ordered, is_closed = order_segment_pixels(coords)
         segments.append((region_id, ordered, is_closed))
-    filt_seg = filter_segments(mask,segments)
+    filt_seg = filter_segments(labels,segments)
     imsave(os.path.join(path,f'{name}_filtered_segs.tif'),filt_seg,check_contrast=False)
     return segments
 
