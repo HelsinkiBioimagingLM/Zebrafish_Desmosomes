@@ -30,11 +30,12 @@ References
 
 import numpy as np
 import pandas as pd
+import os
 from scipy import ndimage
 from scipy.sparse import coo_matrix
 from scipy.sparse.csgraph import dijkstra
 from skimage.measure import label
-
+from skimage.io import imsave
 
 # --------------------------------------------------------------------------
 # 1-2. Segment extraction and pixel ordering
@@ -266,12 +267,18 @@ def measure_polyline(points, is_closed=False, sigma=4.0, step=1.0,
 
     }
 
-
+def filter_segments(label_img,segments):
+    region_ids = [region_id for region_id, _, _ in segments]
+    indicies = np.arange(np.max(label_img))
+    keep_mask = np.isin(indicies,region_ids)
+    keep_bool = keep_mask[label_img.reshape(-1)].reshape(label_img.shape)
+    return label_img*keep_bool
+    
 # --------------------------------------------------------------------------
 # Whole-mask entry point
 # --------------------------------------------------------------------------
 
-def extract_segments(mask, min_pixels=5):
+def extract_segments(mask, min_pixels=5,path=None,name=None):
     """
     Split a node-free skeleton mask into ordered polylines.
 
@@ -287,10 +294,12 @@ def extract_segments(mask, min_pixels=5):
             continue
         ordered, is_closed = order_segment_pixels(coords)
         segments.append((region_id, ordered, is_closed))
+    filt_seg = filter_segments(mask,segments)
+    imsave(os.path.join(path,f'{name}_filtered_segs.tif'),filt_seg,check_contrast=False)
     return segments
 
 
-def measure_skeleton_segments(mask, min_pixels=5, z=None, image_name=None, batch=None, condition=None, fish_id=None, **measure_kwargs):
+def measure_skeleton_segments(mask, min_pixels=5, path=None, name=None, **measure_kwargs):
     """
     Measure every segment in a node-free skeleton mask.
 
@@ -305,13 +314,8 @@ def measure_skeleton_segments(mask, min_pixels=5, z=None, image_name=None, batch
     pandas.DataFrame with one row per segment, indexed by label id.
     """
     rows = []
-    for region_id, points, is_closed in extract_segments(mask, min_pixels):
+    for region_id, points, is_closed in extract_segments(mask, min_pixels, path, name):
         row = measure_polyline(points, is_closed, **measure_kwargs)
         row["label"] = region_id
-        row["z-slice"] = z,
-        row["image"] = image_name,
-        row["batch"] = batch,
-        row["condition"] = condition,
-        row["fish_id"] = fish_id
         rows.append(row)
-    return pd.DataFrame(rows).set_index("label") if rows else pd.DataFrame()
+    return pd.DataFrame(rows) if rows else pd.DataFrame()
