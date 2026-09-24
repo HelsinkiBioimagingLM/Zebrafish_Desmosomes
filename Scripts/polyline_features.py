@@ -210,7 +210,7 @@ def max_chord_deviation(points):
 
 
 def measure_polyline(points, is_closed=False, sigma=4.0, step=1.0,
-                     min_lobe_turning=0.2, pixel_size=1.0, z=None, image_name=None, batch=None, condition=None, fish_id=None):
+                     min_lobe_turning=0.2, pixel_size=1.0):
     """
     Compute shape descriptors for one ordered polyline.
 
